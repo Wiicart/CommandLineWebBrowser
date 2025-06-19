@@ -16,12 +16,14 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
+@SuppressWarnings("unused")
 public final class PrimitiveRenderer implements Renderer {
 
     private final Document document;
 
     private static final Set<String> HEADERS = Set.of("h1", "h2", "h3", "h4", "h5", "h6");
 
+    @SuppressWarnings("unused")
     public PrimitiveRenderer(@NotNull Document document) {
         this.document = document;
     }
@@ -59,4 +61,5 @@ public final class PrimitiveRenderer implements Renderer {
         box.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE, SGR.BOLD));
         return createTextBox(content);
     }
+
 }

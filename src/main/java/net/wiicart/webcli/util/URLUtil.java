@@ -33,6 +33,8 @@ public final class URLUtil {
     public static @NotNull String simplify(@NotNull String url) {
         return url.replace("http://", "")
                 .replace("https://", "")
+                .replace("index.html/", "")
+                .replace("index.html", "")
                 .replace(".html", "");
     }
 
