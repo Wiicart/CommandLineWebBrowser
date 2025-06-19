@@ -1,4 +1,8 @@
 package net.wiicart.webcli.web.engine.tree;
 
-public class Tree {
+public final class Tree {
+
+    private TreeNode root;
+
+
 }
