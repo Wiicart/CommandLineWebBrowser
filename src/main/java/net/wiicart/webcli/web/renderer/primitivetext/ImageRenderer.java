@@ -10,7 +10,7 @@ final class ImageRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
     private static final String FORMAT = "[IMAGE alt=\"{alt}\"]";
 
     @Override
-    public List<String> getContent(@NotNull Element element) {
+    public @NotNull List<String> getContent(@NotNull Element element) {
         String text = element.attr("alt");
         text = FORMAT.replace("{alt}", text);
         return List.of(text);

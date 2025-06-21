@@ -6,9 +6,10 @@ import org.jsoup.nodes.Element;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("unused") // Boxing unnecessary with the new element boxing System
 final class TextRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
 
-    private static final String START_AND_END = "-".repeat(PrimitiveTextBoxRenderer.ROW_SIZE);
+    private static final String START_AND_END = "+" + "-".repeat(PrimitiveTextBoxRenderer.ROW_SIZE - 2) + "+";
 
     @Override
     public @NotNull List<String> getContent(@NotNull Element element) {
@@ -21,24 +22,32 @@ final class TextRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
         List<String> list = new ArrayList<>();
         list.add(START_AND_END);
 
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder("|");
         String[] words = text.split(" ");
         for(String word : words) {
-            if(builder.length() + word.length() < PrimitiveTextBoxRenderer.ROW_SIZE) {
+            if(builder.length() + word.length() < PrimitiveTextBoxRenderer.ROW_SIZE - 2) {
                 builder.append(word);
                 builder.append(" ");
             } else {
+                complete(builder);
                 list.add(builder.toString());
-                builder = new StringBuilder(word + " ");
+                builder = new StringBuilder("|" + word + " ");
             }
         }
 
         if(!builder.isEmpty()) {
+            complete(builder);
             list.add(builder.toString());
         }
 
         list.add(START_AND_END);
+        list.add("");
 
         return list;
+    }
+
+    private void complete(@NotNull StringBuilder builder) {
+        int length = builder.length();
+        builder.append(" ".repeat(Math.max(0, PrimitiveTextBoxRenderer.ROW_SIZE - length - 1))).append("|");
     }
 }

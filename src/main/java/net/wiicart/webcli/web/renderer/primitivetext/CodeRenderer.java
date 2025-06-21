@@ -5,15 +5,10 @@ import org.jsoup.nodes.Element;
 
 import java.util.List;
 
-final class ListItemRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
+final class CodeRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
 
     @Override
     public @NotNull List<String> getContent(@NotNull Element element) {
-        String text = element.ownText().strip().trim();
-        if(text.isBlank()) {
-            return List.of();
-        }
-
-        return List.of(" •" + text);
+        return List.of();
     }
 }

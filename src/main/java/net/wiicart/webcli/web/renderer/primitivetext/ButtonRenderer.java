@@ -1,6 +1,7 @@
 package net.wiicart.webcli.web.renderer.primitivetext;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 import org.jsoup.nodes.Element;
 
 import java.util.List;
@@ -10,7 +11,16 @@ final class ButtonRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
     private static final String FORMAT = "[BUTTON {data}]";
 
     @Override
-    public List<String> getContent(@NotNull Element element) {
+    public @NotNull @Unmodifiable List<String> getContent(@NotNull Element element) {
+        String string = getAttributes(element);
+        if(!string.isEmpty()) {
+            return List.of(FORMAT.replace("{data}", string));
+        }
+
+        return List.of("[BUTTON]");
+    }
+
+    private @NotNull String getAttributes(@NotNull Element element) {
         StringBuilder builder = new StringBuilder();
 
         String name = element.attr("name");
@@ -33,6 +43,6 @@ final class ButtonRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
             builder.append("text=\"").append(text).append("\"");
         }
 
-        return List.of(FORMAT.replace("{data}", builder.toString()));
+        return builder.toString();
     }
 }

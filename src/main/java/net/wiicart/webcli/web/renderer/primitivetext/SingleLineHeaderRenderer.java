@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import java.util.List;
 import java.util.Map;
 
-final class HeaderRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
+final class SingleLineHeaderRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
 
     private static final Map<String, String> HEADERS = Map.of(
             "header", "======",

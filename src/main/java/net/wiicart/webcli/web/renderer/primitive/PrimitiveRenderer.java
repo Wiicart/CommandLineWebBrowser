@@ -1,4 +1,4 @@
-package net.wiicart.webcli.web.renderer;
+package net.wiicart.webcli.web.renderer.primitive;
 
 import com.googlecode.lanterna.SGR;
 import com.googlecode.lanterna.TerminalSize;
@@ -8,6 +8,7 @@ import com.googlecode.lanterna.gui2.EmptySpace;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
+import net.wiicart.webcli.web.renderer.Renderer;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -60,6 +61,12 @@ public final class PrimitiveRenderer implements Renderer {
         TextBox box = createTextBox(content);
         box.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE, SGR.BOLD));
         return createTextBox(content);
+    }
+
+    protected interface ElementRenderer {
+
+        void applyContent(@NotNull Panel panel, @NotNull Element element);
+
     }
 
 }

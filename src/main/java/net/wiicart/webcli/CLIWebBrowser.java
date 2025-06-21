@@ -32,7 +32,6 @@ public final class CLIWebBrowser {
             DefaultTerminalFactory factory = new DefaultTerminalFactory();
             Terminal terminal = factory.createTerminal();
             terminal.enterPrivateMode();
-            terminal.setBackgroundColor(TextColor.ANSI.YELLOW_BRIGHT);
             return terminal;
         } catch(IOException e) {
             throw new RuntimeException(e);

@@ -8,7 +8,7 @@ import java.util.List;
 
 final class LinkRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
 
-    private static final String FORMAT = "[LINK text=\"{text}\" link=\"{link}\"]";
+    private static final String FORMAT = "[⚡LINK text=\"{text}\" link=\"{link}\"]";
 
     @Override
     public @NotNull @Unmodifiable List<String> getContent(@NotNull Element element) {

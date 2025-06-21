@@ -6,12 +6,13 @@ import com.googlecode.lanterna.graphics.SimpleTheme;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
+import net.wiicart.webcli.util.StringUtils;
 import net.wiicart.webcli.web.renderer.Renderer;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -27,20 +28,41 @@ public class PrimitiveTextBoxRenderer implements Renderer {
         this.document = document;
     }
 
+    private @NotNull TextBox applyTextBox(@NotNull Panel panel) {
+        TextBox textBox = generateFullBodyTextBox();
+        panel.addComponent(textBox);
+        textBox.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE_BRIGHT));
+        return textBox;
+    }
+
     @Override
     public void applyContent(@NotNull Panel panel) {
-        TextBox textBox = generateFullBodyTextBox();
-        textBox.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE_BRIGHT));
-        Iterator<Element> it = document.body().stream().iterator();
-        while (it.hasNext()) {
-            Element element = it.next();
-
-            ElementRenderer renderer = Type.getRenderer(element);
-            for(String string : renderer.getContent(element)) {
-                textBox.addLine(string);
+        TextBox box = applyTextBox(panel);
+        for(Element element : document.body().children()) {
+            List<String> content = getContent(element);
+            for(String string : content) {
+                box.addLine(string);
             }
         }
-        panel.addComponent(textBox);
+    }
+
+    // Recursively generate a List of the content of an Element and it's children.
+    private @NotNull List<String> getContent(@NotNull final Element element) {
+        List<String> content = new ArrayList<>(Type.getRenderer(element).getContent(element));
+
+        // Don't box if there's nothing in the div other than children
+        boolean box = StringUtils.listIsBlank(content) && element.childrenSize() < 2;
+        if(!element.children().isEmpty()) { // add children if the element is not a leaf
+            for(Element child : element.children()) {
+                content.addAll(getContent(child));
+            }
+        }
+
+        if(box) {
+            content = StringUtils.box(content);
+        }
+
+        return content;
     }
 
     public static @NotNull TextBox generateFullBodyTextBox() {
@@ -53,15 +75,17 @@ public class PrimitiveTextBoxRenderer implements Renderer {
     }
 
     enum Type {
-        HEADER(Set.of("h1", "h2", "h3", "h4", "h5", "h6", "header"), new HeaderRenderer()),
-        TEXT(Set.of("p", "span", "div", "textarea"), new TextRenderer()),
+        HEADER(Set.of("h1", "h2", "h3", "h4", "h5", "h6", "header"), new ASCIIHeaderRenderer()),
+        TEXT(Set.of("p", "span", "div", "textarea"), new SimpleTextRenderer()),
         IMAGE(Set.of("img"), new ImageRenderer()),
         LIST(Set.of("menu", "ul", "ol"), new TextRenderer()),
         BREAK(Set.of("br"), new BreakRenderer()),
         LINK(Set.of("a"), new LinkRenderer()),
         LINE(Set.of("hr"), new LineRenderer()),
         BUTTON(Set.of("button"), new ButtonRenderer()),
-        LIST_ITEM(Set.of("li"), new ListItemRenderer()),;
+        LIST_ITEM(Set.of("li"), new ListItemRenderer()),
+        SMALL_SCRIPT(Set.of("sup", "sub"), new ScriptRenderer()),
+        STRONG(Set.of("strong", "b"), new StrongRenderer()),;
 
         private final Set<String> tags;
         private final ElementRenderer renderer;
@@ -73,7 +97,7 @@ public class PrimitiveTextBoxRenderer implements Renderer {
             this.renderer = renderer;
         }
 
-        public static @NotNull ElementRenderer getRenderer(@NotNull Element element) {
+        static @NotNull ElementRenderer getRenderer(@NotNull Element element) {
             for(Type type : Type.values()) {
                 if(type.tagMatches(element.tagName())) {
                     return type.renderer;
@@ -82,14 +106,14 @@ public class PrimitiveTextBoxRenderer implements Renderer {
             return UNIMPLEMENTED;
         }
 
-        public boolean tagMatches(@NotNull String tag) {
+        boolean tagMatches(@NotNull String tag) {
             return tags.contains(tag.toLowerCase(Locale.ROOT));
         }
     }
 
     interface ElementRenderer {
 
-        List<String> getContent(@NotNull Element element);
+        @NotNull List<String> getContent(@NotNull Element element);
 
     }
 }

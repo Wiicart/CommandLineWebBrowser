@@ -5,17 +5,13 @@ import org.jsoup.nodes.Element;
 
 import java.util.List;
 
-final class UnimplementedElementRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
-
+final class ScriptRenderer implements PrimitiveTextBoxRenderer.ElementRenderer {
     @Override
     public @NotNull List<String> getContent(@NotNull Element element) {
         String text = element.ownText().strip().trim();
-        if(text.isEmpty()) {
+        if(text.isBlank()) {
             return List.of();
         }
-
-        String head = "+-----(UNIMPLEMENTED ELEMENT \"" + element.tagName() + "\")-----+";
-        String footer = "+" + "-".repeat(head.length() - 2) + "+";
-        return List.of(head, text, footer);
+        return List.of(text);
     }
 }

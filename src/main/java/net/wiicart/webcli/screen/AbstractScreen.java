@@ -9,11 +9,6 @@ public abstract class AbstractScreen<T extends AbstractScreen<T>> {
 
     public abstract ScreenFutureRunner<T> show();
 
-    /**
-     * Tells this class that any further Runnables with {@link AbstractScreen#then(Runnable)}
-     * may be invoked immediately.
-     * @return A boolean
-     */
     //todo remove, uneccessarry
     abstract boolean readyToExecute();
 
@@ -40,10 +35,7 @@ public abstract class AbstractScreen<T extends AbstractScreen<T>> {
             return this;
         }
 
-        /**
-         * Invokes all Runnables collected from {@link AbstractScreen#then(Runnable)}
-         * This must be called once the Screen is in an acceptable state to run the Runnables.
-         */
+
         @MustBeInvokedByOverriders
         void executeRunnables() {
             for (Runnable runnable : runnables) {

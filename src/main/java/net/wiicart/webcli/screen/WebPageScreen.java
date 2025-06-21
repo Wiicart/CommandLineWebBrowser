@@ -12,12 +12,16 @@ import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.ProgressBar;
 import com.googlecode.lanterna.gui2.TextBox;
+import com.googlecode.lanterna.gui2.TextGUI;
 import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.WindowListenerAdapter;
+import com.googlecode.lanterna.input.KeyStroke;
+import net.wiicart.webcli.screen.helper.LoadingPage;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
 import net.wiicart.webcli.util.URLUtil;
+import net.wiicart.webcli.web.WebManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
 import net.wiicart.webcli.web.WebPage;
 import org.jetbrains.annotations.Contract;
@@ -28,6 +32,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Progress;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
@@ -35,7 +40,9 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
     private final WindowBasedTextGUI gui;
 
-    private final ScreenFutureRunner<WebPageScreen> future;
+    private final WebManager engine = new WebManager(this);
+
+    private final ScreenFutureRunner<WebPageScreen> runner;
 
     private @NotNull Node currentNode = new Node("");
 
@@ -56,7 +63,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         emptySpace = new EmptySpace(TextColor.ANSI.WHITE, new TerminalSize(getColumnCount(), 1));
         emptySpace.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill, LinearLayout.GrowPolicy.CanGrow));
         window = createWindow();
-        future = new ScreenFutureRunner<>(this);
+        runner = new ScreenFutureRunner<>(this);
     }
 
     private @NotNull Window createWindow() {
@@ -96,7 +103,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         loadTitle();
         goToAddress("https://www.wiicart.net/clbrowser", false);
         gui.addWindowAndWait(window);
-        return future;
+        return runner;
     }
 
     @Override
@@ -128,24 +135,39 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
     }
 
     public void goToAddress(String address, boolean updateNode) {
-        try {
-            if(updateNode) {
-                updateCurrentNode(address);
-            }
-            content.removeAllComponents();
-            progress = new ProgressBar(0, 100, getColumnCount());
-            progress.setValue(0);
-            content.addComponent(progress);
-            WebPage page = WebPage.fromAddress(address, generateProgressUpdate());
+        if(updateNode) {
+            updateCurrentNode(address);
+        }
+        content.removeAllComponents();
+        progress = new ProgressBar(0, 100, getColumnCount());
+        progress.setValue(0);
+        content.addComponent(progress);
+        toLoadingPage();
+        toolBar.setAddress(URLUtil.simplify(address));
+
+        CompletableFuture<WebPage> future = engine.loadPage(address, generateProgressUpdate());
+        future.thenAccept(page -> {
             title.setText(page.getTitle());
-            toolBar.setAddress(URLUtil.simplify(address));
             content.removeAllComponents();
             page.applyContent(content);
-        } catch(HttpStatusException e) {
-            toErrorPage(e.getStatusCode(), e.getMessage());
-        } catch(Exception e) {
-            toErrorPage(000, e.getMessage());
+        }).exceptionally(e -> {
+            Throwable cause = e.getCause();
+            if (cause instanceof HttpStatusException http) {
+                toErrorPage(http.getStatusCode(), cause.getMessage());
+            } else {
+                toErrorPage(000, cause.getMessage());
+            }
+            return null;
+        });
+    }
+
+    private void toLoadingPage() {
+        TextBox box = PrimitiveTextBoxRenderer.generateFullBodyTextBox();
+        for(String string : LoadingPage.CONTENT) {
+            box.addLine(string);
         }
+
+        content.addComponent(box);
     }
 
     private void toErrorPage(int code, @Nullable String message) {
@@ -174,6 +196,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
     public void exit() {
         window.close();
+        engine.close();
     }
 
     private @NotNull Label loadTitle() {
@@ -208,11 +231,21 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         return gui.getScreen().getTerminalSize().getRows();
     }
 
+    @SuppressWarnings("unused")
     @Contract(pure = true)
     private @NotNull Progress<Connection.Response> generateProgressUpdate() {
         return (processed, total, percent, context) -> {
             int processedPercent = Float.valueOf(percent).intValue();
             progress.setValue(processedPercent);
         };
+    }
+
+    @SuppressWarnings("unused")
+    private static final class EscapeListener implements TextGUI.Listener {
+
+        @Override
+        public boolean onUnhandledKeyStroke(TextGUI textGUI, KeyStroke keyStroke) {
+            return false;
+        }
     }
 }
