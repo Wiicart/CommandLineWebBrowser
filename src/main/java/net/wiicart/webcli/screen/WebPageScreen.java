@@ -21,9 +21,9 @@ import net.wiicart.webcli.screen.helper.LoadingPage;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
 import net.wiicart.webcli.util.URLUtil;
+import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.WebManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
-import net.wiicart.webcli.web.WebPage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +50,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
     private final Label title = loadTitle();
 
-    private final ToolBar toolBar = new ToolBar(this, "Title", "Enter a website address here");
+    private final ToolBar toolBar;
 
     private final EmptySpace emptySpace;
 
@@ -60,6 +60,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
     public WebPageScreen(@NotNull WindowBasedTextGUI gui) {
         this.gui = gui;
+        toolBar = new ToolBar(this, "Title", " ".repeat(60));
         emptySpace = new EmptySpace(TextColor.ANSI.WHITE, new TerminalSize(getColumnCount(), 1));
         emptySpace.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill, LinearLayout.GrowPolicy.CanGrow));
         window = createWindow();
@@ -73,15 +74,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         root.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
         root.setLayoutManager(new LinearLayout(Direction.VERTICAL));
         root.addComponent(title);
-        Panel toolBarWrapper = new Panel();
-        toolBarWrapper.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
-        toolBarWrapper.setSize(new TerminalSize(getColumnCount(), 1));
-        toolBarWrapper.setTheme(new SimpleTheme(TextColor.ANSI.BLUE, TextColor.ANSI.WHITE_BRIGHT));
-        toolBarWrapper.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center, LinearLayout.GrowPolicy.CanGrow));
-        toolBar.setPanelSize(getColumnCount());
-        toolBarWrapper.addComponent(toolBar.getPanel());
-        root.addComponent(toolBarWrapper);
-        root.addComponent(emptySpace);
+        loadToolBar(root);
 
         content.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
         root.addComponent(content);
@@ -96,6 +89,19 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
             }
         });
         return window1;
+    }
+
+    private void loadToolBar(@NotNull Panel root) {
+        Panel wrapper = new Panel();
+        wrapper.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+        wrapper.setSize(new TerminalSize(getColumnCount(), 1));
+        wrapper.setTheme(new SimpleTheme(TextColor.ANSI.BLUE, TextColor.ANSI.WHITE_BRIGHT));
+        wrapper.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center, LinearLayout.GrowPolicy.CanGrow));
+
+        toolBar.setPanelSize(getColumnCount());
+        wrapper.addComponent(toolBar.getPanel());
+        root.addComponent(wrapper);
+        root.addComponent(emptySpace);
     }
 
     @Override
@@ -145,11 +151,11 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         toLoadingPage();
         toolBar.setAddress(URLUtil.simplify(address));
 
-        CompletableFuture<WebPage> future = engine.loadPage(address, generateProgressUpdate());
-        future.thenAccept(page -> {
-            title.setText(page.getTitle());
+        CompletableFuture<? extends Destination> future = engine.loadPage(address, generateProgressUpdate());
+        future.thenAccept(destination -> {
+            title.setText(destination.getTitle());
             content.removeAllComponents();
-            page.applyContent(content);
+            destination.applyContent(content);
         }).exceptionally(e -> {
             Throwable cause = e.getCause();
             if (cause instanceof HttpStatusException http) {
@@ -170,7 +176,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         content.addComponent(box);
     }
 
-    private void toErrorPage(int code, @Nullable String message) {
+    public void toErrorPage(int code, @Nullable String message) {
         content.removeAllComponents();
         TextBox box = PrimitiveTextBoxRenderer.generateFullBodyTextBox();
         for(String string : UnreachablePage.withCode(code)) {
@@ -226,12 +232,10 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         return gui.getScreen().getTerminalSize().getColumns();
     }
 
-    @SuppressWarnings("unused")
     public int getRowCount() {
         return gui.getScreen().getTerminalSize().getRows();
     }
 
-    @SuppressWarnings("unused")
     @Contract(pure = true)
     private @NotNull Progress<Connection.Response> generateProgressUpdate() {
         return (processed, total, percent, context) -> {

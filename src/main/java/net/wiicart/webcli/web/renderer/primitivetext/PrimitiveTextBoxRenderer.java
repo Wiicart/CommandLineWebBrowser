@@ -51,7 +51,7 @@ public class PrimitiveTextBoxRenderer implements Renderer {
         List<String> content = new ArrayList<>(Type.getRenderer(element).getContent(element));
 
         // Don't box if there's nothing in the div other than children
-        boolean box = StringUtils.listIsBlank(content) && element.childrenSize() < 2;
+        boolean box = StringUtils.checkIfListIsBlank(content) && element.childrenSize() < 2;
         if(!element.children().isEmpty()) { // add children if the element is not a leaf
             for(Element child : element.children()) {
                 content.addAll(getContent(child));
@@ -76,8 +76,8 @@ public class PrimitiveTextBoxRenderer implements Renderer {
 
     enum Type {
         HEADER(Set.of("h1", "h2", "h3", "h4", "h5", "h6", "header"), new ASCIIHeaderRenderer()),
-        TEXT(Set.of("p", "span", "div", "textarea"), new SimpleTextRenderer()),
-        IMAGE(Set.of("img"), new ImageRenderer()),
+        TEXT(Set.of("p", "span", "div", "textarea", "label"), new SimpleTextRenderer()),
+        IMAGE(Set.of("img"), new ImageASCIIRenderer()),
         LIST(Set.of("menu", "ul", "ol"), new TextRenderer()),
         BREAK(Set.of("br"), new BreakRenderer()),
         LINK(Set.of("a"), new LinkRenderer()),
@@ -85,7 +85,8 @@ public class PrimitiveTextBoxRenderer implements Renderer {
         BUTTON(Set.of("button"), new ButtonRenderer()),
         LIST_ITEM(Set.of("li"), new ListItemRenderer()),
         SMALL_SCRIPT(Set.of("sup", "sub"), new ScriptRenderer()),
-        STRONG(Set.of("strong", "b"), new StrongRenderer()),;
+        STRONG(Set.of("strong", "b"), new StrongRenderer()),
+        CODE(Set.of("code"), new CodeRenderer()),;
 
         private final Set<String> tags;
         private final ElementRenderer renderer;

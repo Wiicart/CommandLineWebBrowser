@@ -1,0 +1,35 @@
+          :::        :::::::::       ::::::::      :::    :::   :::::::::::
+       :+: :+:      :+:    :+:     :+:    :+:     :+:    :+:       :+:
+     +:+   +:+     +:+    +:+     +:+    +:+     +:+    +:+       +:+
+   +#++:++#++:    +#++:++#+      +#+    +:+     +#+    +:+       +#+
+  +#+     +#+    +#+    +#+     +#+    +#+     +#+    +#+       +#+
+ #+#     #+#    #+#    #+#     #+#    #+#     #+#    #+#       #+#
+###     ###    #########       ########       ########        ###
+
+CommandLine Web Browser
+author: wiicart
+repo: github.com/wiicart/commandlinewebbrowser
+
+ _       _   _                             _
+| |     (_) | |__    _ __    __ _   _ __  (_)   ___   ___
+| |     | | | '_ \  | '__|  / _` | | '__| | |  / _ \ / __|
+| |___  | | | |_) | | |    | (_| | | |    | | |  __/ \__ \
+|_____| |_| |_.__/  |_|     \__,_| |_|    |_|  \___| |___/
+
+  • https://github.com/jhy/jsoup
+  • https://github.com/mabe02/lanterna
+  • https://github.com/korhner/asciimg
+  • https://github.com/lalyos/jfiglet
+  * A lot of the ASCII art and text in this program comes from asciiart.eu
+
+ ___            __
+|_ _|  _ __    / _|   ___
+ | |  | '_ \  | |_   / _ \
+ | |  | | | | |  _| | (_) |
+|___| |_| |_| |_|    \___/
+
+ In the address bar, three protocols are supported:
+  • https:// (& http) - internet
+  • file:// - local files
+  • jar:// - internal resource files
+

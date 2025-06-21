@@ -1,6 +1,5 @@
 package net.wiicart.webcli;
 
-import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
@@ -12,37 +11,50 @@ import java.io.IOException;
 
 public final class CLIWebBrowser {
 
-    public CLIWebBrowser() {
-        try (Terminal terminal = createTerminalAndInit()){
-            terminal.setBackgroundColor(TextColor.ANSI.RED);
-            Screen screen = createScreen();
-            screen.startScreen();
+    public static void main(String args[]) {
+        for(String arg : args) {
+            if(arg.equalsIgnoreCase("--debug")) {
+                Debug.enablePrinting();
+            }
+        }
+
+        new CLIWebBrowser();
+    }
+
+    private final DefaultTerminalFactory factory = new DefaultTerminalFactory();
+
+    private CLIWebBrowser() {
+        try (final Terminal terminal = createTerminalAndInit()) {
+            final Screen screen = createScreen();
             MultiWindowTextGUI gui = new MultiWindowTextGUI(screen);
-            WebPageScreen screen1 = new WebPageScreen(gui);
-            screen1.show();
+
+            new WebPageScreen(gui).show();
+
+            // shutdown
             terminal.exitPrivateMode();
             terminal.flush();
-        } catch(IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private @NotNull Terminal createTerminalAndInit() {
         try {
-            DefaultTerminalFactory factory = new DefaultTerminalFactory();
             Terminal terminal = factory.createTerminal();
             terminal.enterPrivateMode();
+
             return terminal;
-        } catch(IOException e) {
-            throw new RuntimeException(e);
+        } catch (final IOException e) {
+            throw new RuntimeException("An error occurred while initializing the terminal.", e);
         }
     }
 
     private @NotNull Screen createScreen() {
         try {
-            DefaultTerminalFactory factory = new DefaultTerminalFactory();
-            return factory.createScreen();
-        } catch(IOException e) {
+            Screen screen = factory.createScreen();
+            screen.startScreen();
+            return screen;
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
     }

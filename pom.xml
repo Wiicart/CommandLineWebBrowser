@@ -29,7 +29,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>net.wiicart.webcli.Main</mainClass>
+                                    <mainClass>net.wiicart.webcli.CLIWebBrowser</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -70,11 +70,23 @@
             <groupId>io.korhner</groupId>
             <artifactId>asciimg</artifactId>
             <version>1.00-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-web</artifactId>
             <version>21.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.33.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.htmlunit</groupId>
+            <artifactId>htmlunit</artifactId>
+            <version>4.13.0</version>
         </dependency>
     </dependencies>
 

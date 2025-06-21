@@ -1,8 +1,10 @@
 package net.wiicart.webcli.util;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -20,8 +22,8 @@ public final class StringUtils {
      * |                   |
      * +-------------------+
      * */
-    public static @NotNull List<String> box(@NotNull final List<String> content) {
-        if(listIsBlank(content)) {
+    public static @NotNull @Unmodifiable List<String> box(@NotNull final List<String> content) {
+        if(checkIfListIsBlank(content)) {
             return List.of();
         }
 
@@ -40,7 +42,7 @@ public final class StringUtils {
         return result;
     }
 
-    public static boolean listIsBlank(@NotNull List<String> content) {
+    public static boolean checkIfListIsBlank(@NotNull List<String> content) {
         if(content.isEmpty()) {
             return true;
         }
@@ -54,7 +56,7 @@ public final class StringUtils {
         return true;
     }
 
-    private static int findLongestLength(@NotNull final List<String> content) {
+    public static int findLongestLength(@NotNull final List<String> content) {
         int longest = 0;
         for(String string : content) {
             if(string.length() > longest) {
@@ -63,6 +65,15 @@ public final class StringUtils {
         }
 
         return longest;
+    }
+
+    public static @NotNull @Unmodifiable List<String> convertToListByNewLine(@NotNull String string) {
+        final String[] lines = string.split("\n");
+        return Arrays.asList(lines);
+    }
+
+    public static @NotNull List<String> modifiableCopy(@NotNull final List<String> list) {
+        return new ArrayList<>(list);
     }
 
 }

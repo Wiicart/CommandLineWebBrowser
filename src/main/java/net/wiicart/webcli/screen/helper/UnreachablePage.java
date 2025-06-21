@@ -1,5 +1,7 @@
 package net.wiicart.webcli.screen.helper;
 
+import net.wiicart.webcli.Debug;
+import net.wiicart.webcli.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -36,10 +38,26 @@ public final class UnreachablePage {
         FOUR_ZERO_FOUR.add("                                                                       ");
     }
 
+    private static final List<String> FOUR_ZERO_FOUR_2;
+    static {
+        List<String> list;
+        try {
+             list = ResourceManager.loadLocalResourceAsString("/unreachable/404.txt");
+        } catch(Exception e) {
+            Debug.log("Failed to load resource FOUR_ZERO_FOUR_2");
+            list = FOUR_ZERO_FOUR;
+        }
+
+        FOUR_ZERO_FOUR_2 = list;
+    }
+
     private UnreachablePage() {}
 
     public static @NotNull List<String> withCode(int code) {
         if(code == 404) {
+            if(Math.random() * 2 < 1) {
+                return FOUR_ZERO_FOUR_2;
+            }
             return FOUR_ZERO_FOUR;
         }
 
