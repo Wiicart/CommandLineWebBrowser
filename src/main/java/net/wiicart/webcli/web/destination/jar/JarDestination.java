@@ -1,0 +1,56 @@
+package net.wiicart.webcli.web.destination.jar;
+
+import com.googlecode.lanterna.gui2.Panel;
+import net.wiicart.webcli.ErrorStatus;
+import net.wiicart.webcli.exception.LoadFailureException;
+import net.wiicart.webcli.screen.PrimaryScreen;
+
+import net.wiicart.webcli.web.destination.AbstractDestination;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+
+public final class JarDestination extends AbstractDestination {
+
+    private final String address;
+
+    private final PrimaryScreen screen;
+
+    private final Handler handler;
+
+    public JarDestination(@NotNull String address, @NotNull PrimaryScreen screen) throws LoadFailureException {
+        this.address = address;
+        this.screen = screen;
+        handler = load();
+    }
+
+    @Contract(" -> new")
+    @ErrorStatus(codes={750, 0})
+    private @NotNull Handler load() throws LoadFailureException {
+        if(isImage(address)) {
+            return new DirectJarImageHandler(address, screen);
+        } else if(isHtml(address)) {
+            return new JarHtmlHandler(address);
+        } else {
+            return new JarPlainTextHandler(address);
+        }
+    }
+
+    @Override
+    public void applyContent(@NotNull Panel panel) {
+        handler.applyContent(panel);
+    }
+
+    @Override
+    public @NotNull String getTitle() {
+        return handler.getTitle();
+    }
+
+    public static @NotNull String normalizePath(@NotNull String path) {
+        if(path.startsWith("jar:/")) {
+            path = path.substring(5);
+        }
+
+        return path;
+    }
+
+}

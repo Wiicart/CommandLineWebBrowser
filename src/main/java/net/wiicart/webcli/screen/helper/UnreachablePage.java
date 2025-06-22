@@ -58,10 +58,35 @@ public final class UnreachablePage {
             list = ResourceManager.loadLocalResourceAsList("/unreachable/unknownhost.txt");
         } catch(Exception e) {
             Debug.log("Failed to load resource UNKNOWN_HOST");
-            list = List.of("Unknown host");
+            list = List.of("Unknown Host");
         }
 
         UNKNOWN_HOST = list;
+    }
+
+    private static final List<String> FILE_NOT_FOUND;
+    static {
+        List<String> list;
+        try {
+            list = ResourceManager.loadLocalResourceAsList("/unreachable/filenotfound.txt");
+        } catch(Exception e) {
+            Debug.log("Failed to load resource FILE_NOT_FOUND");
+            list = List.of("File Not Found");
+        }
+
+        FILE_NOT_FOUND = list;
+    }
+
+    private static final List<String> IMAGE_ERROR;
+    static {
+        List<String> list;
+        try {
+            list = ResourceManager.loadLocalResourceAsList("/unreachable/imageerror.txt");
+        } catch(Exception e) {
+            Debug.log("Failed to load resource IMAGE_ERROR");
+            list = List.of("Image Error");
+        }
+        IMAGE_ERROR = list;
     }
 
     private UnreachablePage() {}
@@ -76,6 +101,10 @@ public final class UnreachablePage {
             }
 
             case 700 -> UNKNOWN_HOST;
+
+            case 710 -> IMAGE_ERROR;
+
+            case 750 -> FILE_NOT_FOUND;
 
             default -> {
                 List<String> list = new ArrayList<>(LINES);

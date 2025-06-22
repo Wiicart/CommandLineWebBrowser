@@ -17,34 +17,35 @@ import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.WindowListenerAdapter;
 import com.googlecode.lanterna.input.KeyStroke;
+import net.wiicart.webcli.CLIBrowser;
 import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.helper.LoadingPage;
+import net.wiicart.webcli.screen.helper.PageManager;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
 import net.wiicart.webcli.web.destination.Destination;
-import net.wiicart.webcli.web.WebManager;
+import net.wiicart.webcli.web.DestinationManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Connection;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Progress;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
+public final class PrimaryScreen {
 
     private static final Set<Window.Hint> ENTRY_HINTS = Set.of(Window.Hint.CENTERED, Window.Hint.FIT_TERMINAL_WINDOW);
 
+    private final CLIBrowser browser;
+
     private final WindowBasedTextGUI gui;
 
-    private final WebManager engine = new WebManager(this);
+    private final DestinationManager engine = new DestinationManager(this);
 
-    private final ScreenFutureRunner<WebPageScreen> runner;
-
-    private @NotNull Node currentNode = new Node("");
+    private final PageManager pages = new PageManager(this, "");
 
     private final Panel content = new Panel();
 
@@ -58,13 +59,16 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
 
     private final Window window;
 
-    public WebPageScreen(@NotNull WindowBasedTextGUI gui) {
+    public PrimaryScreen(@NotNull CLIBrowser browser, @NotNull WindowBasedTextGUI gui) {
+        this.browser = browser;
         this.gui = gui;
-        toolBar = new ToolBar(this, "Title", " ".repeat(60));
+        toolBar = new ToolBar(this, "Title", " ".repeat(60)); // must be after gui assignment
         emptySpace = new EmptySpace(TextColor.ANSI.WHITE, new TerminalSize(getColumnCount(), 1));
         emptySpace.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill, LinearLayout.GrowPolicy.CanGrow));
         window = createWindow();
-        runner = new ScreenFutureRunner<>(this);
+
+        goToAddress("jar://welcome.html", false);
+        gui.addWindowAndWait(window);
     }
 
     private @NotNull Window createWindow() {
@@ -104,46 +108,23 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         root.addComponent(emptySpace);
     }
 
-    @Override
-    public ScreenFutureRunner<WebPageScreen> show() {
-        loadTitle();
-        goToAddress("jar://welcome.html", false);
-        gui.addWindowAndWait(window);
-        return runner;
-    }
-
-    @Override
-    boolean readyToExecute() {
-        return false;
-    }
-
     public void backwards() {
-        Node previous = currentNode.previous;
-        if(previous != null) {
-            currentNode = previous;
-            refresh();
-        }
+        pages.toPrevious();
     }
 
     public void forwards() {
-        Node next = currentNode.next;
-        if(next != null) {
-            currentNode = next;
-            refresh();
-        }
+        pages.toNext();
     }
 
     public void refresh() {
-        content.removeAllComponents();
-        content.addComponent(PrimitiveTextBoxRenderer.generateFullBodyTextBox()
-                .addLine("Loading..."));
-        goToAddress(currentNode.address, false);
+        goToAddress(pages.currentAddress(), false);
     }
 
     public void goToAddress(String address, boolean updateNode) {
         if(updateNode) {
-            updateCurrentNode(address);
+            pages.update(address);
         }
+
         content.removeAllComponents();
         progress = new ProgressBar(0, 100, getColumnCount());
         progress.setValue(0);
@@ -157,7 +138,8 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
             destination.applyContent(content);
             title.setText(destination.getTitle());
         }).exceptionally(e -> {
-            if(e instanceof LoadFailureException ex) {
+            Throwable cause = e.getCause();
+            if(cause instanceof LoadFailureException ex) {
                 toErrorPage(ex.code(), ex.getCause().getMessage());
             } else {
                 toErrorPage(000, e.getCause().getMessage());
@@ -191,15 +173,6 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         content.addComponent(box);
     }
 
-    // Moves the current node to a new node of the current webpage,
-    // updates the previous to reflect the new page.
-    private void updateCurrentNode(String address) {
-        Node newNode = new Node(address);
-        newNode.previous = currentNode;
-        currentNode.next = newNode;
-        currentNode = newNode;
-    }
-
     public void exit() {
         window.close();
         engine.close();
@@ -213,19 +186,6 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         title1.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
         title1.setSize(new TerminalSize(100, 100));
         return title1;
-    }
-
-
-    private static class Node {
-
-        private final String address;
-
-        private Node previous;
-        private Node next;
-
-        public Node(String address) {
-            this.address = address;
-        }
     }
 
     public int getColumnCount() {
@@ -251,5 +211,9 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         public boolean onUnhandledKeyStroke(TextGUI textGUI, KeyStroke keyStroke) {
             return false;
         }
+    }
+
+    public CLIBrowser getBrowser() {
+        return browser;
     }
 }

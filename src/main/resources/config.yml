@@ -1,0 +1,12 @@
+# [INFO & WARNING]
+# THIS IS AN EDITABLE YAML PAGE, MAKE SURE TO KEEP ALL FORMATTING VALID.
+# ONCE YOU HAVE MADE YOUR CHANGES, PRESS [Save] UNDER THE TOOLBAR.
+# ALL CHANGES REQUIRE RELAUNCHING THE APPLICATION TO TAKE EFFECT.
+
+# CLIBrowser
+# author: wiicart
+# repo: github.com/wiicart/commandlinewebbrowser
+
+# Timeout Duration
+# How long should the application wait for a webpage to respond (milliseconds)?
+timeout: 10000

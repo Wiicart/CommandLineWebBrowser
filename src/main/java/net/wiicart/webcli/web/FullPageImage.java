@@ -3,7 +3,7 @@ package net.wiicart.webcli.web;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
 import net.wiicart.webcli.exception.LoadFailureException;
-import net.wiicart.webcli.screen.WebPageScreen;
+import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.util.ImageConverterUtil;
 import net.wiicart.webcli.util.StringUtils;
 import net.wiicart.webcli.util.URLUtil;
@@ -19,11 +19,11 @@ public final class FullPageImage extends AbstractDestination {
 
     private final String src;
 
-    private final WebPageScreen screen;
+    private final PrimaryScreen screen;
 
     private String content;
 
-    public FullPageImage(@NotNull WebPageScreen screen, String src) throws LoadFailureException {
+    public FullPageImage(@NotNull PrimaryScreen screen, String src) throws LoadFailureException {
         this.screen = screen;
         this.src = src;
         load();
@@ -36,6 +36,11 @@ public final class FullPageImage extends AbstractDestination {
         for(String string : StringUtils.convertToListByNewLine(content)) {
             box.addLine(string);
         }
+    }
+
+    @Override
+    public @NotNull String getTitle() {
+        return "";
     }
 
     private void load() throws LoadFailureException {

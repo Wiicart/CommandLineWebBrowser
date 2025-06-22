@@ -1,14 +1,12 @@
-package net.wiicart.webcli.web.destination.external;
+package net.wiicart.webcli.web.destination.jar;
 
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
-import net.wiicart.webcli.ErrorStatus;
-import net.wiicart.webcli.config.Option;
+import net.wiicart.webcli.ResourceManager;
 import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.util.ImageConverterUtil;
 import net.wiicart.webcli.util.StringUtils;
-import net.wiicart.webcli.util.URLUtil;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -16,46 +14,31 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
-final class DirectImageHandler implements Destination.Handler {
-
-    private final String address;
+final class DirectJarImageHandler implements Destination.Handler {
 
     private final PrimaryScreen screen;
 
-    private final String title;
+    private final String address;
 
-    private final int timeout;
+    private final String title;
 
     private String content;
 
-    DirectImageHandler(@NotNull String address, @NotNull PrimaryScreen screen) throws LoadFailureException {
+    DirectJarImageHandler(@NotNull String address, @NotNull PrimaryScreen screen) throws LoadFailureException {
         this.address = address;
         this.screen = screen;
-
         title = StringUtils.getFileName(address);
-        timeout = screen.getBrowser().config().getInt(Option.Int.TIMEOUT);
-
         load();
     }
 
-    @ErrorStatus(codes={710})
     private void load() throws LoadFailureException {
+        String path = JarDestination.normalizePath(address);
         try {
-            URL url = new URL(URLUtil.normalizeURL(address));
-            URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(timeout);
-
-            try(InputStream input = connection.getInputStream()) {
-                BufferedImage image = ImageIO.read(input);
-                content = ImageConverterUtil.imageToString(
-                        image,
-                        screen.getRowCount() - 5
-                );
-            }
-        } catch(Exception e) {
+            InputStream stream = ResourceManager.loadResource(path);
+            BufferedImage image = ImageIO.read(stream);
+            content = ImageConverterUtil.imageToString(image, screen.getRowCount());
+        } catch(final Exception e) {
             throw new LoadFailureException(710, e);
         }
     }
@@ -64,7 +47,6 @@ final class DirectImageHandler implements Destination.Handler {
     public void applyContent(@NotNull Panel panel) {
         TextBox box = PrimitiveTextBoxRenderer.generateFullBodyTextBox();
         panel.addComponent(box);
-
         box.addLine(content);
     }
 
@@ -72,5 +54,4 @@ final class DirectImageHandler implements Destination.Handler {
     public @NotNull String getTitle() {
         return title;
     }
-
 }

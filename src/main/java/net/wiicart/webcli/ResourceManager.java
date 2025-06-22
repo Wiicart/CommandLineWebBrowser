@@ -10,6 +10,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Offers utility methods to load JAR resources. Does not work for external resources.
+ */
 public final class ResourceManager {
 
     private ResourceManager() {}
@@ -46,5 +49,15 @@ public final class ResourceManager {
         }
 
         return resource;
+    }
+
+    public static @NotNull InputStream loadResource(@NotNull String path) throws Exception {
+        try (InputStream stream = ResourceManager.class.getResourceAsStream(path)) {
+            if (stream == null) {
+                throw new IOException("Resource not found: " + path);
+            }
+
+            return stream;
+        }
     }
 }

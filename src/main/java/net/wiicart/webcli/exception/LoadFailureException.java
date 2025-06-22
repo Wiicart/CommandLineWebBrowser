@@ -9,6 +9,7 @@ public final class LoadFailureException extends Exception {
     /**
      * Custom Codes
      * 700 - unknown host
+     * 750 - file not found
      */
     private final int code;
 

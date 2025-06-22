@@ -2,10 +2,10 @@ package net.wiicart.webcli.web;
 
 import net.wiicart.webcli.Debug;
 import net.wiicart.webcli.exception.LoadFailureException;
-import net.wiicart.webcli.screen.WebPageScreen;
+import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.destination.external.ExternalDestination;
-import net.wiicart.webcli.web.destination.JARDestination;
+import net.wiicart.webcli.web.destination.jar.JarDestination;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Connection;
@@ -17,13 +17,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 // https://www.baeldung.com/java-executor-service-tutorial
-public final class WebManager {
+public final class DestinationManager {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final WebPageScreen screen;
+    private final PrimaryScreen screen;
 
-    public WebManager(@NotNull WebPageScreen screen) {
+    public DestinationManager(@NotNull PrimaryScreen screen) {
         this.screen = screen;
     }
 
@@ -40,15 +40,10 @@ public final class WebManager {
     }
 
     private @NotNull Destination load(@NotNull String address, @Nullable Progress<Connection.Response> progress) throws LoadFailureException {
-        if(address.startsWith("http://") || address.startsWith("https://")) {
-            if(address.endsWith(".png") || address.endsWith(".jpg")) {
-                return new FullPageImage(screen, address);
-            }
-
-            return new ExternalDestination(address, screen);
-        } else if(address.startsWith("jar:/")) {
-            return new JARDestination(address);
+        if(address.startsWith("jar:/")) {
+            return new JarDestination(address, screen);
         }
+
         return new ExternalDestination(address, screen);
     }
 

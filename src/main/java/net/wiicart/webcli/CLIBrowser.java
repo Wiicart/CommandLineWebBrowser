@@ -4,38 +4,48 @@ import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import net.wiicart.webcli.screen.WebPageScreen;
+import net.wiicart.webcli.config.Configuration;
+import net.wiicart.webcli.screen.PrimaryScreen;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public final class CLIWebBrowser {
+public final class CLIBrowser {
 
-    public static void main( String args[]) {
+    public static void main(String args[]) {
         for(String arg : args) {
             if(arg.equalsIgnoreCase("--debug")) {
                 Debug.enablePrinting();
             }
         }
 
-        new CLIWebBrowser();
+        new CLIBrowser();
     }
 
     private final DefaultTerminalFactory factory = new DefaultTerminalFactory();
 
-    private CLIWebBrowser() {
+    private final Configuration config;
+
+    private final PrimaryScreen screen;
+
+    private CLIBrowser() {
+        config = new Configuration();
         try (final Terminal terminal = createTerminalAndInit()) {
-            final Screen screen = createScreen();
-            MultiWindowTextGUI gui = new MultiWindowTextGUI(screen);
-
-            new WebPageScreen(gui).show();
-
+            screen = new PrimaryScreen(this, new MultiWindowTextGUI(createScreen()));
             // shutdown
             terminal.exitPrivateMode();
             terminal.flush();
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Configuration config() {
+        return config;
+    }
+
+    public PrimaryScreen screen() {
+        return screen;
     }
 
     private @NotNull Terminal createTerminalAndInit() {
@@ -51,9 +61,9 @@ public final class CLIWebBrowser {
 
     private @NotNull Screen createScreen() {
         try {
-            Screen screen = factory.createScreen();
-            screen.startScreen();
-            return screen;
+            Screen s = factory.createScreen();
+            s.startScreen();
+            return s;
         } catch (final IOException e) {
             throw new RuntimeException(e);
         }

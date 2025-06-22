@@ -1,26 +1,23 @@
 package net.wiicart.webcli.web.destination;
 
-import com.googlecode.lanterna.gui2.Panel;
-import net.wiicart.webcli.web.renderer.Renderer;
 import org.jetbrains.annotations.NotNull;
 
-public class AbstractDestination implements Destination {
+public abstract class AbstractDestination implements Destination {
 
     protected AbstractDestination() {
 
     }
 
-    @Override
-    public void applyContent(@NotNull Panel panel) {
-
+    protected boolean isHtml(@NotNull String address) {
+        return address.endsWith(".html")
+                || address.endsWith(".htm")
+                || address.endsWith(".html/")
+                || address.endsWith(".htm/");
     }
 
-    @Override
-    public @NotNull String getTitle() {
-        return "";
-    }
-
-    protected Renderer determineRenderer() {
-        return null;
+    protected boolean isImage(@NotNull String address) {
+        return address.endsWith(".png")
+                || address.endsWith(".jpg")
+                || address.endsWith(".jpeg");
     }
 }

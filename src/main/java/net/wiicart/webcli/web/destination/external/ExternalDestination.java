@@ -2,22 +2,22 @@ package net.wiicart.webcli.web.destination.external;
 
 import com.googlecode.lanterna.gui2.Panel;
 import net.wiicart.webcli.exception.LoadFailureException;
-import net.wiicart.webcli.screen.WebPageScreen;
+import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.util.URLUtil;
 import net.wiicart.webcli.web.destination.AbstractDestination;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 // https://www.baeldung.com/java-with-jsoup
-public class ExternalDestination extends AbstractDestination {
+public final class ExternalDestination extends AbstractDestination {
 
     private final @NotNull String address;
 
-    private final @NotNull WebPageScreen screen;
+    private final @NotNull PrimaryScreen screen;
 
     private final Handler handler;
 
-    public ExternalDestination(@NotNull String address, @NotNull WebPageScreen screen) throws LoadFailureException {
+    public ExternalDestination(@NotNull String address, @NotNull PrimaryScreen screen) throws LoadFailureException {
         this.address = URLUtil.normalizeURL(address);
         this.screen = screen;
         handler = load();
@@ -25,12 +25,12 @@ public class ExternalDestination extends AbstractDestination {
 
     @Contract(" -> new")
     private @NotNull Handler load() throws LoadFailureException {
-        if(isImage()) {
+        if(isImage(address)) {
             return new DirectImageHandler(address, screen);
-        } else if(isHtml()) {
-            return new ExternalHtmlHandler(address);
+        } else if(isHtml(address)) {
+            return new ExternalHtmlHandler(address, screen);
         } else {
-            return new PlainTextHandler(address);
+            return new ExternalPlainTextHandler(address, screen);
         }
     }
 
@@ -42,19 +42,6 @@ public class ExternalDestination extends AbstractDestination {
     @Override
     public void applyContent(@NotNull Panel panel) {
         handler.applyContent(panel);
-    }
-
-    private boolean isHtml() {
-        return address.endsWith(".html")
-                || address.endsWith(".htm")
-                || address.endsWith(".html/")
-                || address.endsWith(".htm/");
-    }
-
-    private boolean isImage() {
-        return address.endsWith(".png")
-                || address.endsWith(".jpg")
-                || address.endsWith(".jpeg");
     }
 
 }

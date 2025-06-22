@@ -10,12 +10,12 @@ import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
-import net.wiicart.webcli.screen.WebPageScreen;
+import net.wiicart.webcli.screen.PrimaryScreen;
 import org.jetbrains.annotations.NotNull;
 
 public final class ToolBar {
 
-    private final @NotNull WebPageScreen screen;
+    private final @NotNull PrimaryScreen screen;
 
     private final @NotNull String title;
 
@@ -23,7 +23,7 @@ public final class ToolBar {
 
     private final @NotNull TextBox addressBox;
 
-    public ToolBar(@NotNull WebPageScreen screen, @NotNull String title, @NotNull String address) {
+    public ToolBar(@NotNull PrimaryScreen screen, @NotNull String title, @NotNull String address) {
         this.screen = screen;
         this.title = title;
         panel = new Panel();
