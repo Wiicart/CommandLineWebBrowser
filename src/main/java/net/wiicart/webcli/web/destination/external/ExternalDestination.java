@@ -1,19 +1,12 @@
 package net.wiicart.webcli.web.destination.external;
 
 import com.googlecode.lanterna.gui2.Panel;
+import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.WebPageScreen;
 import net.wiicart.webcli.util.URLUtil;
 import net.wiicart.webcli.web.destination.AbstractDestination;
-import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
-import org.jsoup.Progress;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-
-import java.io.IOException;
 
 // https://www.baeldung.com/java-with-jsoup
 public class ExternalDestination extends AbstractDestination {
@@ -22,44 +15,46 @@ public class ExternalDestination extends AbstractDestination {
 
     private final @NotNull WebPageScreen screen;
 
-    private String content;
+    private final Handler handler;
 
-    public ExternalDestination(@NotNull String address, @NotNull WebPageScreen screen) {
+    public ExternalDestination(@NotNull String address, @NotNull WebPageScreen screen) throws LoadFailureException {
         this.address = URLUtil.normalizeURL(address);
         this.screen = screen;
+        handler = load();
+    }
+
+    @Contract(" -> new")
+    private @NotNull Handler load() throws LoadFailureException {
+        if(isImage()) {
+            return new DirectImageHandler(address, screen);
+        } else if(isHtml()) {
+            return new ExternalHtmlHandler(address);
+        } else {
+            return new PlainTextHandler(address);
+        }
     }
 
     @Override
-    public void load(@Nullable Progress<Connection.Response> progress) throws IOException {
-        HtmlUnit
-        WebDriver driver = new FirefoxDriver();
-        driver.get(address);
-
-        String raw = driver.getPageSource();
-        if (raw != null) {
-            document = Jsoup.parse(raw);
-        }
-
-        driver.close();
-    }
-
     public @NotNull String getTitle() {
-        return ""; // todo fix
+        return handler.getTitle();
     }
 
     @Override
     public void applyContent(@NotNull Panel panel) {
-        if(document == null) {
-            try {
-                load(null);
-            } catch(Exception e) {
-                screen.toErrorPage(0, e.getMessage());
-                return;
-            }
-        }
-
-        new PrimitiveTextBoxRenderer(document).applyContent(panel);
+        handler.applyContent(panel);
     }
 
+    private boolean isHtml() {
+        return address.endsWith(".html")
+                || address.endsWith(".htm")
+                || address.endsWith(".html/")
+                || address.endsWith(".htm/");
+    }
+
+    private boolean isImage() {
+        return address.endsWith(".png")
+                || address.endsWith(".jpg")
+                || address.endsWith(".jpeg");
+    }
 
 }

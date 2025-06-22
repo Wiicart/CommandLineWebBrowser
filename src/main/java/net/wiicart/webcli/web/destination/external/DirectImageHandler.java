@@ -1,4 +1,4 @@
-package net.wiicart.webcli.web;
+package net.wiicart.webcli.web.destination.external;
 
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextBox;
@@ -7,7 +7,6 @@ import net.wiicart.webcli.screen.WebPageScreen;
 import net.wiicart.webcli.util.ImageConverterUtil;
 import net.wiicart.webcli.util.StringUtils;
 import net.wiicart.webcli.util.URLUtil;
-import net.wiicart.webcli.web.destination.AbstractDestination;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,32 +14,40 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
-public final class FullPageImage extends AbstractDestination {
-
-    private final String src;
+class DirectImageHandler implements Handler {
 
     private final WebPageScreen screen;
 
+    private final String address;
+
+    private final String title;
+
     private String content;
 
-    public FullPageImage(@NotNull WebPageScreen screen, String src) throws LoadFailureException {
+    DirectImageHandler(@NotNull String address, @NotNull WebPageScreen screen) throws LoadFailureException {
+        this.address = address;
+        this.title = StringUtils.getFileName(address);
         this.screen = screen;
-        this.src = src;
         load();
     }
+
 
     @Override
     public void applyContent(@NotNull Panel panel) {
         TextBox box = PrimitiveTextBoxRenderer.generateFullBodyTextBox();
         panel.addComponent(box);
-        for(String string : StringUtils.convertToListByNewLine(content)) {
-            box.addLine(string);
-        }
+
+        box.addLine(content);
+    }
+
+    @Override
+    public @NotNull String getTitle() {
+        return title;
     }
 
     private void load() throws LoadFailureException {
         try {
-            BufferedImage bufferedImage = ImageIO.read(new URL(URLUtil.normalizeURL(src)));
+            BufferedImage bufferedImage = ImageIO.read(new URL(URLUtil.normalizeURL(address)));
             content = ImageConverterUtil.imageToString(bufferedImage, screen.getRowCount() - 5);
         } catch(Exception e) {
             throw new LoadFailureException(-501, e);

@@ -42,7 +42,7 @@ public final class UnreachablePage {
     static {
         List<String> list;
         try {
-             list = ResourceManager.loadLocalResourceAsString("/unreachable/404.txt");
+             list = ResourceManager.loadLocalResourceAsList("/unreachable/404.txt");
         } catch(Exception e) {
             Debug.log("Failed to load resource FOUR_ZERO_FOUR_2");
             list = FOUR_ZERO_FOUR;
@@ -51,20 +51,39 @@ public final class UnreachablePage {
         FOUR_ZERO_FOUR_2 = list;
     }
 
+    private static final List<String> UNKNOWN_HOST;
+    static {
+        List<String> list;
+        try {
+            list = ResourceManager.loadLocalResourceAsList("/unreachable/unknownhost.txt");
+        } catch(Exception e) {
+            Debug.log("Failed to load resource UNKNOWN_HOST");
+            list = List.of("Unknown host");
+        }
+
+        UNKNOWN_HOST = list;
+    }
+
     private UnreachablePage() {}
 
     public static @NotNull List<String> withCode(int code) {
-        if(code == 404) {
-            if(Math.random() * 2 < 1) {
-                return FOUR_ZERO_FOUR_2;
+        return switch (code) {
+            case 404 -> {
+                if(Math.random() * 2 < 1) {
+                    yield FOUR_ZERO_FOUR_2;
+                }
+                yield FOUR_ZERO_FOUR;
             }
-            return FOUR_ZERO_FOUR;
-        }
 
-        List<String> list = new ArrayList<>(LINES);
-        String pos = list.get(10);
-        list.set(10, pos.replace("{status}", String.valueOf(code)));
-        return list;
+            case 700 -> UNKNOWN_HOST;
+
+            default -> {
+                List<String> list = new ArrayList<>(LINES);
+                String pos = list.get(10);
+                list.set(10, pos.replace("{status}", String.valueOf(code)));
+                yield list;
+            }
+        };
     }
 
 }

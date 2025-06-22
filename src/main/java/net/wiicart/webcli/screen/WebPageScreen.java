@@ -17,10 +17,10 @@ import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.WindowListenerAdapter;
 import com.googlecode.lanterna.input.KeyStroke;
+import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.helper.LoadingPage;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
-import net.wiicart.webcli.util.URLUtil;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.WebManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
@@ -107,7 +107,7 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
     @Override
     public ScreenFutureRunner<WebPageScreen> show() {
         loadTitle();
-        goToAddress("https://www.wiicart.net/clbrowser", false);
+        goToAddress("jar://welcome.html", false);
         gui.addWindowAndWait(window);
         return runner;
     }
@@ -149,20 +149,20 @@ public final class WebPageScreen extends AbstractScreen<WebPageScreen> {
         progress.setValue(0);
         content.addComponent(progress);
         toLoadingPage();
-        toolBar.setAddress(URLUtil.simplify(address));
+        toolBar.setAddress(address);
 
         CompletableFuture<? extends Destination> future = engine.loadPage(address, generateProgressUpdate());
         future.thenAccept(destination -> {
-            title.setText(destination.getTitle());
             content.removeAllComponents();
             destination.applyContent(content);
+            title.setText(destination.getTitle());
         }).exceptionally(e -> {
-            Throwable cause = e.getCause();
-            if (cause instanceof HttpStatusException http) {
-                toErrorPage(http.getStatusCode(), cause.getMessage());
+            if(e instanceof LoadFailureException ex) {
+                toErrorPage(ex.code(), ex.getCause().getMessage());
             } else {
-                toErrorPage(000, cause.getMessage());
+                toErrorPage(000, e.getCause().getMessage());
             }
+
             return null;
         });
     }

@@ -32,7 +32,7 @@ public final class ResourceManager {
         return builder.toString();
     }
 
-    public static @NotNull List<String> loadLocalResourceAsString(@NotNull String path) throws Exception {
+    public static @NotNull List<String> loadLocalResourceAsList(@NotNull String path) throws Exception {
         List<String> resource = new ArrayList<>();
         try (InputStream stream = ResourceManager.class.getResourceAsStream(path)) {
             if (stream == null) {

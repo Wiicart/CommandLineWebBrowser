@@ -72,8 +72,21 @@ public final class StringUtils {
         return Arrays.asList(lines);
     }
 
+    public static @NotNull String convertListToString(@NotNull List<String> list) {
+        StringBuilder builder = new StringBuilder();
+        for(String str : list) {
+            builder.append(str);
+        }
+
+        return builder.toString();
+    }
+
     public static @NotNull List<String> modifiableCopy(@NotNull final List<String> list) {
         return new ArrayList<>(list);
+    }
+
+    public static @NotNull String getFileName(@NotNull final String address) {
+        return address.substring(address.lastIndexOf('/') + 1);
     }
 
 }

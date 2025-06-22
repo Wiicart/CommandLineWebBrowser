@@ -6,11 +6,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PlainTextRenderer implements Renderer {
+public class FullPageImageRenderer implements Renderer {
 
     private final List<String> content;
 
-    public PlainTextRenderer(List<String> content) {
+    public FullPageImageRenderer(List<String> content) {
         this.content = content;
     }
 

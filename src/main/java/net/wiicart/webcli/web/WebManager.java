@@ -1,6 +1,7 @@
 package net.wiicart.webcli.web;
 
 import net.wiicart.webcli.Debug;
+import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.WebPageScreen;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.destination.external.ExternalDestination;
@@ -20,7 +21,7 @@ public final class WebManager {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final WebPageScreen screen; //todo add escape button
+    private final WebPageScreen screen;
 
     public WebManager(@NotNull WebPageScreen screen) {
         this.screen = screen;
@@ -38,22 +39,15 @@ public final class WebManager {
         return future;
     }
 
-    private @NotNull Destination load(@NotNull String address, @Nullable Progress<Connection.Response> progress) throws Exception {
+    private @NotNull Destination load(@NotNull String address, @Nullable Progress<Connection.Response> progress) throws LoadFailureException {
         if(address.startsWith("http://") || address.startsWith("https://")) {
             if(address.endsWith(".png") || address.endsWith(".jpg")) {
-                Destination img = new FullPageImage(screen, address);
-                img.load(null);
-
-                return img;
+                return new FullPageImage(screen, address);
             }
 
-            Destination page = new ExternalDestination(address, screen);
-            page.load(progress);
-            return page;
+            return new ExternalDestination(address, screen);
         } else if(address.startsWith("jar:/")) {
-            Destination resource = new JARDestination(address);
-            resource.load(null);
-            return resource;
+            return new JARDestination(address);
         }
         return new ExternalDestination(address, screen);
     }

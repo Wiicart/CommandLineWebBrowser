@@ -6,6 +6,10 @@ package net.wiicart.webcli.exception;
 @SuppressWarnings("unused")
 public final class LoadFailureException extends Exception {
 
+    /**
+     * Custom Codes
+     * 700 - unknown host
+     */
     private final int code;
 
     public LoadFailureException(int code, String message, Throwable cause) {
