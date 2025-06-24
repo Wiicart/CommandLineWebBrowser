@@ -14,12 +14,13 @@ import java.util.Map;
 
 public final class Configuration {
 
-    private static final String FILE_NAME = "config.yml";
+    public static final File CONFIG_FILE = new File("config.yml");
 
     private static Configuration instance;
 
     private final EnumMap<Option.Int, Integer> ints = new EnumMap<>(Option.Int.class);
     private final EnumMap<Option.Text, String> strings = new EnumMap<>(Option.Text.class);
+    private final EnumMap<Option.Bool, Boolean> booleans = new EnumMap<>(Option.Bool.class);
 
     public Configuration() throws IllegalStateException {
         checkInit();
@@ -35,38 +36,38 @@ public final class Configuration {
     }
 
     private void load() {
-        File file = new File(FILE_NAME);
-        if(!file.exists()) {
-            writeDefaultConfig(file);
+        if(!CONFIG_FILE.exists()) {
+            writeDefaultConfig();
         }
 
-        try (FileInputStream stream = new FileInputStream(file)) {
+        try (FileInputStream stream = new FileInputStream(CONFIG_FILE)) {
             Yaml yaml = new Yaml();
             Map<String, Object> config = yaml.load(stream);
 
             loadInts(config);
             loadStrings(config);
-        } catch(Exception e) {
-            Debug.log("Configuration file not found: " + FILE_NAME);
+            loadBooleans(config);
+        } catch(final Exception e) {
+            Debug.log("Configuration file not found");
             useDefaults();
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    private void writeDefaultConfig(@NotNull File file) {
-        try(InputStream input = ResourceManager.loadResource("config.yml")) {
+    private void writeDefaultConfig() {
+        try(InputStream input = ResourceManager.loadResource("/config.yml")) {
             // Make sure parent directories exist
-            File parent = file.getParentFile();
-            if(!parent.exists()) {
+            File parent = CONFIG_FILE.getParentFile();
+            if(parent != null && !parent.exists()) {
                 parent.mkdirs();
             }
 
-            try(FileOutputStream out = new FileOutputStream(file)) {
+            try(FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
                 input.transferTo(out);
             }
 
-            Debug.log("Wrote default config.yml to " + file.getAbsolutePath());
-        } catch(Exception e) {
+            Debug.log("Wrote default config.yml to " + CONFIG_FILE.getAbsolutePath());
+        } catch(final Exception e) {
             Debug.log("Failed to save default config.yml");
             Debug.log(e.getMessage());
         }
@@ -94,6 +95,17 @@ public final class Configuration {
         }
     }
 
+    private void loadBooleans(@NotNull Map<String, Object> map) {
+        for(Option.Bool bool : Option.Bool.values()) {
+            Object value = map.get(bool.key);
+            if(value instanceof Boolean booleanValue) {
+                booleans.put(bool, booleanValue);
+            } else {
+                booleans.put(bool, bool.defaultValue);
+            }
+        }
+    }
+
     // Load in default values from the Enums
     private void useDefaults() {
         for(Option.Int option : Option.Int.values()) {
@@ -103,6 +115,10 @@ public final class Configuration {
         for(Option.Text option : Option.Text.values()) {
             strings.put(option, option.defaultValue);
         }
+
+        for(Option.Bool bool : Option.Bool.values()) {
+            booleans.put(bool, bool.defaultValue);
+        }
     }
 
     public int getInt(@NotNull Option.Int key) {
@@ -111,6 +127,10 @@ public final class Configuration {
 
     public @NotNull String getString(@NotNull Option.Text key) {
         return strings.get(key);
+    }
+
+    public boolean getBoolean(@NotNull Option.Bool key) {
+        return booleans.get(key);
     }
 
 }

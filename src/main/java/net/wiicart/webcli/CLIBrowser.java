@@ -28,10 +28,13 @@ public final class CLIBrowser {
 
     private final PrimaryScreen screen;
 
+    private final Screen lanternaScreen;
+
     private CLIBrowser() {
         config = new Configuration();
         try (final Terminal terminal = createTerminalAndInit()) {
-            screen = new PrimaryScreen(this, new MultiWindowTextGUI(createScreen()));
+            lanternaScreen = createScreen();
+            screen = new PrimaryScreen(this, new MultiWindowTextGUI(lanternaScreen));
             // shutdown
             terminal.exitPrivateMode();
             terminal.flush();
@@ -46,6 +49,10 @@ public final class CLIBrowser {
 
     public PrimaryScreen screen() {
         return screen;
+    }
+
+    public Screen lanternaScreen() {
+        return lanternaScreen;
     }
 
     private @NotNull Terminal createTerminalAndInit() {

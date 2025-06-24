@@ -6,6 +6,7 @@ import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
+import net.wiicart.webcli.web.renderer.simple.SimpleRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
@@ -20,12 +21,15 @@ final class ExternalHtmlHandler implements Destination.Handler {
 
     private final @NotNull String address;
 
+    private final PrimaryScreen screen;
+
     private final int timeout;
 
     private Document document;
 
     ExternalHtmlHandler(@NotNull String address, @NotNull PrimaryScreen screen) throws LoadFailureException {
         this.address = address;
+        this.screen = screen;
         timeout = screen.getBrowser().config().getInt(Option.Int.TIMEOUT);
         load();
     }
@@ -48,7 +52,8 @@ final class ExternalHtmlHandler implements Destination.Handler {
 
     @Override
     public void applyContent(@NotNull Panel panel) {
-        new PrimitiveTextBoxRenderer(document).applyContent(panel);
+        new SimpleRenderer(screen, document).applyContent(panel);
+        // new PrimitiveTextBoxRenderer(document).applyContent(panel);
     }
 
     @Override

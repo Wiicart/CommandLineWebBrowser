@@ -1,6 +1,7 @@
 package net.wiicart.webcli.screen;
 
 import com.googlecode.lanterna.SGR;
+import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.SimpleTheme;
@@ -21,8 +22,10 @@ import net.wiicart.webcli.CLIBrowser;
 import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.helper.LoadingPage;
 import net.wiicart.webcli.screen.helper.PageManager;
+import net.wiicart.webcli.screen.helper.ScrollablePanel;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
+import net.wiicart.webcli.screen.listener.ArrowUpAndDownListener;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.DestinationManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
@@ -47,7 +50,7 @@ public final class PrimaryScreen {
 
     private final PageManager pages = new PageManager(this, "");
 
-    private final Panel content = new Panel();
+    private final ScrollablePanel content;
 
     private final Label title = loadTitle();
 
@@ -63,6 +66,7 @@ public final class PrimaryScreen {
         this.browser = browser;
         this.gui = gui;
         toolBar = new ToolBar(this, "Title", " ".repeat(60)); // must be after gui assignment
+        content = new ScrollablePanel(gui);
         emptySpace = new EmptySpace(TextColor.ANSI.WHITE, new TerminalSize(getColumnCount(), 1));
         emptySpace.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill, LinearLayout.GrowPolicy.CanGrow));
         window = createWindow();
@@ -85,6 +89,7 @@ public final class PrimaryScreen {
 
         window1.setComponent(root);
         window1.setHints(ENTRY_HINTS);
+
         window1.addWindowListener(new WindowListenerAdapter() {
             @Override
             public void onResized(Window window, TerminalSize oldSize, TerminalSize newSize) {
@@ -92,6 +97,8 @@ public final class PrimaryScreen {
                 toolBar.setPanelSize(newSize.getColumns());
             }
         });
+
+        window1.addWindowListener(new ArrowUpAndDownListener(content));
         return window1;
     }
 
@@ -126,9 +133,13 @@ public final class PrimaryScreen {
         }
 
         content.removeAllComponents();
+        // Remove
         progress = new ProgressBar(0, 100, getColumnCount());
         progress.setValue(0);
-        content.addComponent(progress);
+        // End remove
+        content.setScrollIndex(0);
+        resetCursorPosition();
+
         toLoadingPage();
         toolBar.setAddress(address);
 
@@ -144,7 +155,6 @@ public final class PrimaryScreen {
             } else {
                 toErrorPage(000, e.getCause().getMessage());
             }
-
             return null;
         });
     }
@@ -188,12 +198,22 @@ public final class PrimaryScreen {
         return title1;
     }
 
+    private void resetCursorPosition() {
+        try {
+            browser.lanternaScreen().setCursorPosition(new TerminalPosition(0, 0));
+        } catch(Exception ignored) {}
+    }
+
     public int getColumnCount() {
         return gui.getScreen().getTerminalSize().getColumns();
     }
 
     public int getRowCount() {
         return gui.getScreen().getTerminalSize().getRows();
+    }
+
+    public WindowBasedTextGUI getGui() {
+        return gui;
     }
 
     @Contract(pure = true)

@@ -15,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
+@Deprecated
 public final class FullPageImage extends AbstractDestination {
 
     private final String src;

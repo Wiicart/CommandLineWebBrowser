@@ -68,7 +68,7 @@ public class PrimitiveTextBoxRenderer implements Renderer {
     public static @NotNull TextBox generateFullBodyTextBox() {
         TextBox box = new TextBox(new TerminalSize(100, 100), TextBox.Style.MULTI_LINE);
         box.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
-        box.setSize(new TerminalSize(100, 100));
+        //box.setSize(new TerminalSize(100, 100));
         box.setTheme(new SimpleTheme(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK));
         box.setReadOnly(true);
         return box;

@@ -27,4 +27,16 @@ public final class Option {
             this.defaultValue = defaultValue;
         }
     }
+
+    public enum Bool {
+        ALLOW_EDITING_LOCAL("allow-edits", false);
+
+        final String key;
+        final boolean defaultValue;
+
+        Bool(final String key, final boolean defaultValue) {
+            this.key = key;
+            this.defaultValue = defaultValue;
+        }
+    }
 }

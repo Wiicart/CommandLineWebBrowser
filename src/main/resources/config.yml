@@ -10,3 +10,7 @@
 # Timeout Duration
 # How long should the application wait for a webpage to respond (milliseconds)?
 timeout: 10000
+
+# Enable Local File Editor
+# For local files (opened with local://), should the browser provide a basic editor?
+allow-edits: false

@@ -6,6 +6,7 @@ import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.destination.external.ExternalDestination;
 import net.wiicart.webcli.web.destination.jar.JarDestination;
+import net.wiicart.webcli.web.destination.local.LocalDestination;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Connection;
@@ -42,9 +43,11 @@ public final class DestinationManager {
     private @NotNull Destination load(@NotNull String address, @Nullable Progress<Connection.Response> progress) throws LoadFailureException {
         if(address.startsWith("jar:/")) {
             return new JarDestination(address, screen);
+        } else if(address.startsWith("file:/") || address.startsWith("local:/")) {
+            return new LocalDestination(address, screen);
+        } else {
+            return new ExternalDestination(address, screen);
         }
-
-        return new ExternalDestination(address, screen);
     }
 
     // Release the Threads, invoke at shutdown

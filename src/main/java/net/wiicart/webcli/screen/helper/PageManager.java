@@ -18,7 +18,7 @@ public final class PageManager {
     }
 
     // Updates the nodes to reflect the browser having gone to a new page.
-    public void update(String address) {
+    public void update(@NotNull String address) {
         Node newNode = new Node(address);
         newNode.previous = current;
         current.next = newNode;
@@ -56,7 +56,7 @@ public final class PageManager {
         private Node previous;
         private Node next;
 
-        public Node(String address) {
+        public Node(@NotNull String address) {
             this.address = address;
         }
 

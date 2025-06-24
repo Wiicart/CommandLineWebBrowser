@@ -10,8 +10,8 @@ public abstract class AbstractDestination implements Destination {
 
     protected boolean isHtml(@NotNull String address) {
         return address.endsWith(".html")
-                || address.endsWith(".htm")
                 || address.endsWith(".html/")
+                || address.endsWith(".htm")
                 || address.endsWith(".htm/");
     }
 

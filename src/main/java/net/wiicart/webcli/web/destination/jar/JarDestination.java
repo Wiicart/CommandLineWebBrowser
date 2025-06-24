@@ -26,9 +26,11 @@ public final class JarDestination extends AbstractDestination {
     @Contract(" -> new")
     @ErrorStatus(codes={750, 0})
     private @NotNull Handler load() throws LoadFailureException {
-        if(isImage(address)) {
+        if(address.equals("jar://config.yml")) {
+            return new JarConfigurationHandler(screen);
+        } else if(isImage(address)) {
             return new DirectJarImageHandler(address, screen);
-        } else if(isHtml(address)) {
+        } else if(isHtml(address)) { //todo refactor to better encompass html
             return new JarHtmlHandler(address);
         } else {
             return new JarPlainTextHandler(address);

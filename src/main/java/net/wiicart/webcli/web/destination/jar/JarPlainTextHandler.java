@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-final class JarPlainTextHandler implements Destination.Handler {
+class JarPlainTextHandler implements Destination.Handler {
 
     private final String address;
 
@@ -53,5 +53,9 @@ final class JarPlainTextHandler implements Destination.Handler {
     @Override
     public @NotNull String getTitle() {
         return title;
+    }
+
+    protected List<String> getContent() {
+        return content;
     }
 }
