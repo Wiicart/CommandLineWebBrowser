@@ -25,7 +25,7 @@ import net.wiicart.webcli.screen.helper.PageManager;
 import net.wiicart.webcli.screen.helper.ScrollablePanel;
 import net.wiicart.webcli.screen.helper.ToolBar;
 import net.wiicart.webcli.screen.helper.UnreachablePage;
-import net.wiicart.webcli.screen.listener.ArrowUpAndDownListener;
+import net.wiicart.webcli.screen.listener.ScrollablePanelHelper;
 import net.wiicart.webcli.web.destination.Destination;
 import net.wiicart.webcli.web.DestinationManager;
 import net.wiicart.webcli.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
@@ -98,7 +98,7 @@ public final class PrimaryScreen {
             }
         });
 
-        window1.addWindowListener(new ArrowUpAndDownListener(content));
+        window1.addWindowListener(new ScrollablePanelHelper(content));
         return window1;
     }
 

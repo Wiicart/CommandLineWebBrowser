@@ -1,5 +1,7 @@
 package net.wiicart.webcli.web.renderer.simple;
 
+import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.SimpleTheme;
 import com.googlecode.lanterna.gui2.Direction;
 import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
@@ -26,6 +28,7 @@ public final class SimpleRenderer implements Renderer {
     public void applyContent(@NotNull Panel panel) {
         // panel.setLayoutManager(new LinearLayout(Direction.VERTICAL));
         for(Element element : document.body().children()) {
+            panel.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE_BRIGHT));
             panel.addComponent(
                     ElementRenderer.getAppropriate(screen, element).getContent()
             );

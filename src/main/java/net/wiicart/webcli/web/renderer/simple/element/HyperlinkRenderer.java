@@ -6,6 +6,7 @@ import net.wiicart.webcli.screen.PrimaryScreen;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Element;
 
+// TODO, support paths such as "/ex/page.html", which implies same site
 final class HyperlinkRenderer extends AbstractElementRenderer {
 
     private final PrimaryScreen screen;

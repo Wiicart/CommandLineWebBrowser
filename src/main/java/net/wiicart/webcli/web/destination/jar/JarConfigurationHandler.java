@@ -59,13 +59,12 @@ final class JarConfigurationHandler implements Destination.Handler {
 
     // Creates a Panel w/ the save button in the middle
     private @NotNull Panel createButtonPanel() {
-        Panel panel = new Panel();
-        panel.addComponent(new Button("Save", this::initSave));
-
-        panel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
+        final Panel panel = new Panel();
+        panel.addComponent(new Button("Save", this::initSave), LinearLayout.createLayoutData(LinearLayout.Alignment.Center));
         panel.setSize(new TerminalSize(screen.getColumnCount(), 1));
-        panel.setTheme(new SimpleTheme(TextColor.ANSI.BLACK, TextColor.ANSI.GREEN_BRIGHT));
+        panel.setTheme(new SimpleTheme(TextColor.ANSI.GREEN_BRIGHT, TextColor.ANSI.BLACK));
         panel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Center, LinearLayout.GrowPolicy.CanGrow));
+        panel.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
 
         return panel;
     }

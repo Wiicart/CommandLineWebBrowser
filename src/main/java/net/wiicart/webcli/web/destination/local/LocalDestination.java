@@ -4,7 +4,9 @@ import com.googlecode.lanterna.gui2.Panel;
 import net.wiicart.webcli.exception.LoadFailureException;
 import net.wiicart.webcli.screen.PrimaryScreen;
 import net.wiicart.webcli.web.destination.Destination;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Represents a "local destination" on the System's disk.
@@ -21,7 +23,8 @@ public final class LocalDestination implements Destination {
         handler = load(address);
     }
 
-    private Handler load(@NotNull String address) throws LoadFailureException {
+    @Contract(pure = true)
+    private @Nullable Handler load(@NotNull String address) throws LoadFailureException {
         return null;
     }
 

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
+@Deprecated
 public final class URLEntryScreen extends AbstractScreen<URLEntryScreen> {
 
     private static final Set<Window.Hint> ENTRY_HINTS = Set.of(Window.Hint.CENTERED, Window.Hint.FIT_TERMINAL_WINDOW);

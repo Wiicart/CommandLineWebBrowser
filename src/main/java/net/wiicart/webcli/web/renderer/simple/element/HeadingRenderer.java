@@ -39,11 +39,13 @@ final class HeadingRenderer extends AbstractElementRenderer {
             final String figlet = FigletFont.convertOneLine(text);
             box = new TextBox(new TerminalSize(screen.getColumnCount(), 6), TextBox.Style.MULTI_LINE) // or estimate from line count
                     .setReadOnly(true)
-                    .setVerticalFocusSwitching(true);
+                    .setVerticalFocusSwitching(true)
+                    .setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
 
             box.setText(figlet);
         } catch (Exception e) {
-            box = new TextBox().setReadOnly(true);
+            box = new TextBox().setReadOnly(true)
+                    .setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
             box.setText(text);
         }
         panel.addComponent(box);

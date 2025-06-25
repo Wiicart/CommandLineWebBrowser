@@ -7,6 +7,7 @@ import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.TextGUIGraphics;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import net.wiicart.webcli.Debug;
+import net.wiicart.webcli.screen.listener.ScrollablePanelHelper;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,12 +15,18 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A Scrollable Panel. Requires {@link ScrollablePanelHelper} to scroll.
+ */
 public class ScrollablePanel extends Panel {
 
-    private final WindowBasedTextGUI gui;
+    // Represents how many rows are taken up by the toolbar, etc.
+    private static final int OFFSET = 5;
 
     // For use reflecting into super for private fields.
     private static final Class<Panel> CLAZZ = Panel.class;
+
+    private final WindowBasedTextGUI gui;
 
     protected int scrollIndex = 0;
 
@@ -36,15 +43,53 @@ public class ScrollablePanel extends Panel {
     }
 
     public void setScrollIndex(final int scrollIndex) {
-        this.scrollIndex = scrollIndex;
-        super.invalidate();
-        gui.getScreen().setCursorPosition(new TerminalPosition(0, 0));
+        if (scrollIndex > 0 && scrollIndex < maxScrollIndex()) {
+            this.scrollIndex = scrollIndex;
+            super.invalidate();
+            gui.getScreen().setCursorPosition(new TerminalPosition(0, 0));
+        }
+    }
+
+    /**
+     * Tells if scrolling down would be appropriate - checking if there's any content below.
+     * @return True/false
+     */
+    public boolean canScrollDown() {
+        return scrollIndex < maxScrollIndex();
+    }
+
+    /**
+     * Tells if scrolling up would be appropriate - checking if there's any content above
+     * @return True/false
+     */
+    public boolean canScrollUp() {
+        return scrollIndex > 0;
+    }
+
+    /**
+     * Calculated by getting the heights of all Components.
+     * @return An int
+     */
+    public int maxScrollIndex() {
+        int contentLength = 0;
+        for(Component component : components) {
+            TerminalPosition pos = component.getPosition();
+            int bottom = pos.getRow() + component.getSize().getRows();
+            contentLength = Math.max(contentLength, bottom);
+        }
+
+        int visible = getTerminalRows();
+        return Math.max(0, contentLength - (visible - OFFSET));
     }
 
     protected void superLayout(TerminalSize size) {
         synchronized(this.components) {
             super.getLayoutManager().doLayout(size, this.components);
         }
+    }
+
+    private int getTerminalRows() {
+        return gui.getScreen().getTerminalSize().getRows();
     }
 
     @SuppressWarnings("unchecked")
@@ -70,6 +115,11 @@ public class ScrollablePanel extends Panel {
 
     public class ScrollablePanelRenderer extends DefaultPanelRenderer {
 
+        /**
+         * Copied from the superclass implementation for the most part, just modified for scrolling.
+         * @param graphics The TextGUIGraphics
+         * @param panel The Panel
+         */
         @Override
         public void drawComponent(TextGUIGraphics graphics, Panel panel) {
             if (ScrollablePanel.this.isInvalid()) {
@@ -108,9 +158,8 @@ public class ScrollablePanel extends Panel {
         }
 
         private int bottomIndex() {
-            final int offset = 5; // ToolBar & other Components at the top create an offset of 5
-            final int screenRows = gui.getScreen().getTerminalSize().getRows();
-            return scrollIndex + screenRows - offset;
+            final int screenRows = getTerminalRows();
+            return scrollIndex + screenRows - OFFSET;
         }
 
         @Contract("_ -> new")
