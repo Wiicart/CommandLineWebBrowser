@@ -29,7 +29,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>net.wiicart.webcli.CLIBrowser</mainClass>
+                                    <mainClass>net.wiicart.karatasi.Karatasi</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
