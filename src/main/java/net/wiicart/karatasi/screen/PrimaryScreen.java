@@ -13,11 +13,9 @@ import com.googlecode.lanterna.gui2.LinearLayout;
 import com.googlecode.lanterna.gui2.Panel;
 import com.googlecode.lanterna.gui2.ProgressBar;
 import com.googlecode.lanterna.gui2.TextBox;
-import com.googlecode.lanterna.gui2.TextGUI;
 import com.googlecode.lanterna.gui2.Window;
 import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
 import com.googlecode.lanterna.gui2.WindowListenerAdapter;
-import com.googlecode.lanterna.input.KeyStroke;
 import net.wiicart.karatasi.Karatasi;
 import net.wiicart.karatasi.exception.LoadFailureException;
 import net.wiicart.karatasi.screen.helper.LoadingPage;
@@ -71,12 +69,12 @@ public final class PrimaryScreen {
         emptySpace.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill, LinearLayout.GrowPolicy.CanGrow));
         window = createWindow();
 
-        goToAddress("jar://welcome.html", false);
+        goToAddress("karatasi://welcome.html", false);
         gui.addWindowAndWait(window);
     }
 
     private @NotNull Window createWindow() {
-        BasicWindow window1 = new BasicWindow("Web Browser");
+        BasicWindow window1 = new BasicWindow("Karatasi");
 
         Panel root = new Panel();
         root.setLayoutData(LinearLayout.createLayoutData(LinearLayout.Alignment.Fill));
@@ -222,15 +220,6 @@ public final class PrimaryScreen {
             int processedPercent = Float.valueOf(percent).intValue();
             progress.setValue(processedPercent);
         };
-    }
-
-    @SuppressWarnings("unused")
-    private static final class EscapeListener implements TextGUI.Listener {
-
-        @Override
-        public boolean onUnhandledKeyStroke(TextGUI textGUI, KeyStroke keyStroke) {
-            return false;
-        }
     }
 
     public Karatasi getBrowser() {

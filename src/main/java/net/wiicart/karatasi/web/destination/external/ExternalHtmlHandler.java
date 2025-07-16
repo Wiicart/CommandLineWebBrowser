@@ -5,7 +5,7 @@ import net.wiicart.karatasi.config.Option;
 import net.wiicart.karatasi.exception.LoadFailureException;
 import net.wiicart.karatasi.screen.PrimaryScreen;
 import net.wiicart.karatasi.web.destination.Destination;
-import net.wiicart.karatasi.web.renderer.simple.SimpleRenderer;
+import net.wiicart.karatasi.web.renderer.primitivetext.PrimitiveTextBoxRenderer;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
@@ -51,7 +51,8 @@ final class ExternalHtmlHandler implements Destination.Handler {
 
     @Override
     public void applyContent(@NotNull Panel panel) {
-        new SimpleRenderer(screen, document).applyContent(panel);
+        new PrimitiveTextBoxRenderer(document).applyContent(panel);
+        // new SimpleRenderer(screen, document).applyContent(panel);
         // new PrimitiveTextBoxRenderer(document).applyContent(panel);
     }
 
